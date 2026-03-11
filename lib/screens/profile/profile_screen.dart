@@ -87,7 +87,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                           onPressed: () {},
                           style: OutlinedButton.styleFrom(
                             side: BorderSide(color: Colors.grey[800]!),
-                            shape: RoundedRectangle.circular(10),
+                            shape: RoundedRectangleBorder(borderRadius: BorderRadius.circular(10)),
                           ),
                           child: const Text("Edit profile", style: TextStyle(color: Colors.white, fontSize: 13)),
                         ),
@@ -171,7 +171,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     showModalBottomSheet(
       context: context,
       backgroundColor: const Color(0xFF1C1C1E),
-      shape: const RoundedRectangle.circular(20),
+      shape: const RoundedRectangleBorder(borderRadius: BorderRadius.all(Radius.circular(20))),
       builder: (context) => Column(
         mainAxisSize: MainAxisSize.min,
         children: [
