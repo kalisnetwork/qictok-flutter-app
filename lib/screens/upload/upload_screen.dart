@@ -1,4 +1,8 @@
+import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:provider/provider.dart';
+import '../../services/api_service.dart';
 import '../../theme/app_theme.dart';
 
 class UploadScreen extends StatefulWidget {
@@ -11,18 +15,66 @@ class UploadScreen extends StatefulWidget {
 class _UploadScreenState extends State<UploadScreen> {
   final _descriptionController = TextEditingController();
   final _tagsController = TextEditingController();
+  final _api = ApiService();
+  final _picker = ImagePicker();
+  File? _selectedFile;
   bool _isUploading = false;
 
-  void _handleUpload() {
+  Future<void> _pickVideo() async {
+    final XFile? video = await _picker.pickVideo(source: ImageSource.gallery);
+    if (video != null) {
+      setState(() {
+        _selectedFile = File(video.path);
+      });
+    }
+  }
+
+  Future<void> _handleUpload() async {
+    if (_selectedFile == null) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        const SnackBar(content: Text("Please select a video first")),
+      );
+      return;
+    }
+
     setState(() => _isUploading = true);
-    // Simulate upload delay
-    Future.delayed(const Duration(seconds: 2), () {
+    
+    try {
+      final tags = _tagsController.text.split(',').map((t) => t.trim()).toList();
+      final resp = await _api.uploadPost(
+        filePath: _selectedFile!.path,
+        description: _descriptionController.text.trim(),
+        tags: tags,
+      );
+
       if (mounted) {
-        setState(() => _isUploading = false);
+        if (resp.data['status'] == true) {
+          ScaffoldMessenger.of(context).showSnackBar(
+            const SnackBar(content: Text("Post uploaded successfully!")),
+          );
+          _clear();
+        } else {
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(content: Text(resp.data['message'] ?? "Upload failed")),
+          );
+        }
+      }
+    } catch (e) {
+      if (mounted) {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Gallery Access Required (Coming Soon)")),
+          SnackBar(content: Text("Upload error: $e")),
         );
       }
+    } finally {
+      if (mounted) setState(() => _isUploading = false);
+    }
+  }
+
+  void _clear() {
+    _descriptionController.clear();
+    _tagsController.clear();
+    setState(() {
+      _selectedFile = null;
     });
   }
 
@@ -51,7 +103,7 @@ class _UploadScreenState extends State<UploadScreen> {
             AspectRatio(
               aspectRatio: 9 / 16,
               child: GestureDetector(
-                onTap: () {}, // Select video
+                onTap: _pickVideo,
                 child: Container(
                   width: double.infinity,
                   decoration: BoxDecoration(
@@ -59,17 +111,21 @@ class _UploadScreenState extends State<UploadScreen> {
                     borderRadius: BorderRadius.circular(15),
                     border: Border.all(color: Colors.grey[800]!, width: 1),
                   ),
-                  child: Column(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    children: [
-                      Icon(Icons.video_call, size: 50, color: Colors.white.withOpacity(0.3)),
-                      const SizedBox(height: 10),
-                      Text(
-                        "Tap to select video",
-                        style: TextStyle(color: Colors.white.withOpacity(0.3), fontWeight: FontWeight.w600),
-                      ),
-                    ],
-                  ),
+                  child: _selectedFile == null
+                      ? Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            Icon(Icons.video_call, size: 50, color: Colors.white.withOpacity(0.3)),
+                            const SizedBox(height: 10),
+                            Text(
+                              "Tap to select video",
+                              style: TextStyle(color: Colors.white.withOpacity(0.3), fontWeight: FontWeight.w600),
+                            ),
+                          ],
+                        )
+                      : const Center(
+                          child: Icon(Icons.check_circle, size: 50, color: Colors.greenAccent),
+                        ),
                 ),
               ),
             ),
@@ -108,7 +164,6 @@ class _UploadScreenState extends State<UploadScreen> {
             ),
             const SizedBox(height: 40),
             
-            // Privacy Options Mock
             ListTile(
               contentPadding: EdgeInsets.zero,
               title: const Text("Who can see this", style: TextStyle(color: Colors.white, fontSize: 14)),

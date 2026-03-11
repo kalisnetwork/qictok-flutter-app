@@ -17,6 +17,13 @@ class ReelsProvider with ChangeNotifier {
     refresh();
   }
 
+  void reset() {
+    _posts.clear();
+    _page = 1;
+    _hasMore = true;
+    notifyListeners();
+  }
+
   Future<void> refresh() async {
     _page = 1;
     _posts.clear();
@@ -52,6 +59,32 @@ class ReelsProvider with ChangeNotifier {
       _isLoading = false;
       notifyListeners();
     }
+  }
+
+  Future<List<PostModel>> searchPosts(String query) async {
+    try {
+      final resp = await _api.searchPosts(query);
+      if (resp.data['status'] == true) {
+        final List data = resp.data['data'];
+        return data.map((p) => PostModel.fromJson(p)).toList();
+      }
+    } catch (e) {
+      debugPrint("Search error: $e");
+    }
+    return [];
+  }
+
+  Future<List<PostModel>> fetchUserPosts(String userId) async {
+    try {
+      final resp = await _api.getUserPosts(userId);
+      if (resp.data['status'] == true) {
+        final List data = resp.data['data'];
+        return data.map((p) => PostModel.fromJson(p)).toList();
+      }
+    } catch (e) {
+      debugPrint("Fetch user posts error: $e");
+    }
+    return [];
   }
 
   Future<void> likePost(String postId) async {

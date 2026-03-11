@@ -68,6 +68,25 @@ class ApiService {
   Future<Response> getPosts({int page = 1, int limit = 10}) =>
       _dio.get('/posts', queryParameters: {'page': page, 'limit': limit});
 
+  Future<Response> searchPosts(String query, {int page = 1, int limit = 10}) =>
+      _dio.get('/posts/search', queryParameters: {'q': query, 'page': page, 'limit': limit});
+
+  Future<Response> getUserPosts(String userId, {int page = 1, int limit = 10}) =>
+      _dio.get('/posts/users/$userId', queryParameters: {'page': page, 'limit': limit});
+
+  Future<Response> uploadPost({
+    required String filePath,
+    required String description,
+    List<String> tags = const [],
+  }) async {
+    final formData = FormData.fromMap({
+      'description': description,
+      'tags': tags.join(','),
+      'media': await MultipartFile.fromFile(filePath),
+    });
+    return _dio.post('/posts/upload', data: formData);
+  }
+
   Future<Response> likePost(String postId) => _dio.post('/posts/$postId/like');
 
   Future<Response> getComments(String postId) => _dio.get('/posts/$postId/comments');

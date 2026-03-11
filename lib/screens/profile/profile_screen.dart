@@ -18,6 +18,9 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
   void initState() {
     super.initState();
     _tabController = TabController(length: 2, vsync: this);
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      context.read<AuthProvider>().refreshUser();
+    });
   }
 
   @override
@@ -53,6 +56,11 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                   user?.fullName ?? user?.username ?? 'Username',
                   style: const TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.white),
                 ),
+                const SizedBox(height: 5),
+                Text(
+                  "@${user?.username ?? ''}",
+                  style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 13),
+                ),
                 if (user?.bio != null)
                   Padding(
                     padding: const EdgeInsets.symmetric(horizontal: 40, vertical: 10),
@@ -72,7 +80,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
                     _buildPadding(),
                     _buildStat("Followers", user?.followersCount.toString() ?? "0"),
                     _buildPadding(),
-                    _buildStat("Likes", "0"),
+                    _buildStat("Posts", user?.postsCount.toString() ?? "0"),
                   ],
                 ),
                 const SizedBox(height: 25),
@@ -127,7 +135,7 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
         body: TabBarView(
           controller: _tabController,
           children: [
-            _buildGrid(context),
+            _buildUserGrid(context, user?.id),
             const Center(child: Text("No liked videos yet", style: TextStyle(color: Colors.grey))),
           ],
         ),
@@ -135,9 +143,19 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
     );
   }
 
-  Widget _buildGrid(BuildContext context) {
-    return Consumer<ReelsProvider>(
-      builder: (context, provider, child) {
+  Widget _buildUserGrid(BuildContext context, String? userId) {
+    if (userId == null) return const Center(child: CircularProgressIndicator());
+    
+    return FutureBuilder<List<PostModel>>(
+      future: context.read<ReelsProvider>().fetchUserPosts(userId),
+      builder: (context, snapshot) {
+        if (snapshot.connectionState == ConnectionState.waiting) {
+          return const Center(child: CircularProgressIndicator());
+        }
+        final posts = snapshot.data ?? [];
+        if (posts.isEmpty) {
+          return const Center(child: Text("No videos posted yet", style: TextStyle(color: Colors.grey)));
+        }
         return GridView.builder(
           padding: const EdgeInsets.all(1),
           gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
@@ -146,8 +164,18 @@ class _ProfileScreenState extends State<ProfileScreen> with SingleTickerProvider
             crossAxisSpacing: 1,
             mainAxisSpacing: 1,
           ),
-          itemCount: 0, // In real app, filter provider.posts for this user
-          itemBuilder: (context, index) => Container(color: Colors.grey[900]),
+          itemCount: posts.length,
+          itemBuilder: (context, index) {
+            final post = posts[index];
+            return Container(
+              decoration: BoxDecoration(
+                color: Colors.grey[900],
+                image: post.thumbnailUrl != null 
+                    ? DecorationImage(image: NetworkImage(post.thumbnailUrl!), fit: BoxFit.cover)
+                    : null,
+              ),
+            );
+          },
         );
       },
     );

@@ -5,8 +5,23 @@ import '../../models/post_model.dart';
 import 'package:cached_network_image/cached_network_image.dart';
 import 'package:flutter_spinkit/flutter_spinkit.dart';
 
-class ExploreScreen extends StatelessWidget {
-  const ExploreScreen({super.key});
+class _ExploreScreenState extends State<ExploreScreen> {
+  final _searchController = TextEditingController();
+  List<PostModel> _searchResults = [];
+  bool _isSearching = false;
+
+  void _onSearch(String query) async {
+    if (query.isEmpty) {
+      setState(() => _searchResults = []);
+      return;
+    }
+    setState(() => _isSearching = true);
+    final results = await context.read<ReelsProvider>().searchPosts(query);
+    setState(() {
+      _searchResults = results;
+      _isSearching = false;
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -15,51 +30,66 @@ class ExploreScreen extends StatelessWidget {
       appBar: AppBar(
         title: Container(
           height: 40,
+          padding: const EdgeInsets.symmetric(horizontal: 10),
           decoration: BoxDecoration(
             color: Colors.grey[900],
             borderRadius: BorderRadius.circular(10),
           ),
           child: TextField(
+            controller: _searchController,
+            onSubmitted: _onSearch,
             style: const TextStyle(color: Colors.white, fontSize: 14),
             decoration: InputDecoration(
               hintText: "Search QicTok...",
               hintStyle: TextStyle(color: Colors.white.withOpacity(0.4)),
               prefixIcon: Icon(Icons.search, color: Colors.white.withOpacity(0.4), size: 18),
               border: InputBorder.none,
-              contentPadding: const EdgeInsets.symmetric(vertical: 8),
+              contentPadding: const EdgeInsets.symmetric(vertical: 10),
             ),
           ),
         ),
       ),
-      body: Consumer<ReelsProvider>(
-        builder: (context, provider, child) {
-          if (provider.isLoading && provider.posts.isEmpty) {
-            return const Center(child: SpinKitPulse(color: Colors.red, size: 50));
-          }
+      body: _isSearching
+          ? const Center(child: SpinKitPulse(color: Colors.red, size: 50))
+          : _searchResults.isNotEmpty
+              ? _buildGrid(_searchResults)
+              : Consumer<ReelsProvider>(
+                  builder: (context, provider, child) {
+                    if (provider.isLoading && provider.posts.isEmpty) {
+                      return const Center(child: SpinKitPulse(color: Colors.red, size: 50));
+                    }
+                    return _buildGrid(provider.posts);
+                  },
+                ),
+    );
+  }
 
-          return GridView.builder(
-            padding: const EdgeInsets.all(1),
-            gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
-              crossAxisCount: 3,
-              childAspectRatio: 0.7,
-              crossAxisSpacing: 1,
-              mainAxisSpacing: 1,
-            ),
-            itemCount: provider.posts.length,
-            itemBuilder: (context, index) {
-              final post = provider.posts[index];
-              return _buildGridItem(context, post);
-            },
-          );
-        },
+  Widget _buildGrid(List<PostModel> posts) {
+    if (posts.isEmpty) {
+      return Center(
+        child: Text("No results found", style: TextStyle(color: Colors.white.withOpacity(0.5))),
+      );
+    }
+    return GridView.builder(
+      padding: const EdgeInsets.all(1),
+      gridDelegate: const SliverGridDelegateWithFixedCrossAxisCount(
+        crossAxisCount: 3,
+        childAspectRatio: 0.7,
+        crossAxisSpacing: 1,
+        mainAxisSpacing: 1,
       ),
+      itemCount: posts.length,
+      itemBuilder: (context, index) {
+        final post = posts[index];
+        return _buildGridItem(context, post);
+      },
     );
   }
 
   Widget _buildGridItem(BuildContext context, PostModel post) {
     return GestureDetector(
       onTap: () {
-        // In a real app, Navigate to a detail or focused scroll view
+        // Full screen view implementation
       },
       child: Stack(
         fit: StackFit.expand,

@@ -38,6 +38,9 @@ class _MainNavigationState extends State<MainNavigation> {
         return;
       }
     }
+    if (index == 0) {
+      context.read<ReelsProvider>().refresh();
+    }
     setState(() {
       _selectedIndex = index;
     });
