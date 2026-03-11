@@ -36,6 +36,10 @@ class AuthProvider with ChangeNotifier {
   }
 
   Future<void> unawaitedFetchMe() async {
+    await refreshUser();
+  }
+
+  Future<void> refreshUser() async {
     try {
       final resp = await _api.getMe();
       if (resp.data['status'] == true) {
