@@ -34,11 +34,12 @@ class PostModel {
   });
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
+    final mediaId = json['media_id'];
     return PostModel(
       id: json['id'] ?? '',
       userId: json['user_id'],
-      mediaUrl: json['media_url'],
-      thumbnailUrl: json['thumbnail_url'],
+      mediaUrl: mediaId != null ? 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.m3u8' : json['media_url'],
+      thumbnailUrl: mediaId != null ? 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.webp' : json['thumbnail_url'],
       description: json['description'],
       tags: List<String>.from(json['tags'] ?? []),
       likesCount: json['likes'] ?? 0,

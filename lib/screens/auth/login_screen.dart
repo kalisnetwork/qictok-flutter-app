@@ -20,17 +20,17 @@ class _LoginScreenState extends State<LoginScreen> {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty) return;
     
     setState(() => _isLoading = true);
-    final success = await context.read<AuthProvider>().login(
+    final error = await context.read<AuthProvider>().login(
       _emailController.text.trim(),
       _passwordController.text.trim(),
     );
     
     if (mounted) {
-      if (success) {
+      if (error == null) {
         Navigator.pop(context);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Invalid credentials. Please try again.")),
+          SnackBar(content: Text(error)),
         );
         setState(() => _isLoading = false);
       }

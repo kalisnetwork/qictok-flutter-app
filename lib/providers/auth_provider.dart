@@ -1,6 +1,7 @@
 import 'dart:convert';
 import 'package:flutter/material.dart';
 import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import '../models/user_model.dart';
 import '../services/api_service.dart';
 
@@ -48,7 +49,7 @@ class AuthProvider with ChangeNotifier {
     }
   }
 
-  Future<bool> login(String email, String password) async {
+  Future<String?> login(String email, String password) async {
     try {
       final resp = await _api.login(email, password);
       if (resp.data['status'] == true) {
@@ -61,15 +62,20 @@ class AuthProvider with ChangeNotifier {
         await prefs.setString('user_data', jsonEncode(_user!.toJson()));
         
         notifyListeners();
-        return true;
+        return null; // success
       }
+      return resp.data['message'] ?? 'Login failed';
+    } on DioException catch (e) {
+      if (e.response?.data is Map) {
+        return e.response!.data['message'] ?? 'Authentication failed';
+      }
+      return e.message ?? 'Network Error';
     } catch (e) {
-      debugPrint("Login error: $e");
+      return e.toString();
     }
-    return false;
   }
 
-  Future<bool> register(String username, String fullname, String email, String password) async {
+  Future<String?> register(String username, String fullname, String email, String password) async {
     try {
       final resp = await _api.register(username, fullname, email, password);
       if (resp.data['status'] == true) {
@@ -82,12 +88,17 @@ class AuthProvider with ChangeNotifier {
         await prefs.setString('user_data', jsonEncode(_user!.toJson()));
         
         notifyListeners();
-        return true;
+        return null; // success
       }
+      return resp.data['message'] ?? 'Registration failed';
+    } on DioException catch (e) {
+      if (e.response?.data is Map) {
+        return e.response!.data['message'] ?? 'Registration failed';
+      }
+      return e.message ?? 'Network Error';
     } catch (e) {
-      debugPrint("Register error: $e");
+      return e.toString();
     }
-    return false;
   }
 
   Future<void> logout() async {

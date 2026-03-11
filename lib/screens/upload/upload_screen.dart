@@ -20,7 +20,7 @@ class _UploadScreenState extends State<UploadScreen> {
       if (mounted) {
         setState(() => _isUploading = false);
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Post uploaded successfully! (Mocked)")),
+          const SnackBar(content: Text("Gallery Access Required (Coming Soon)")),
         );
       }
     });

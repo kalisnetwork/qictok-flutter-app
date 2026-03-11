@@ -21,7 +21,7 @@ class _RegisterScreenState extends State<RegisterScreen> {
     if (_emailController.text.isEmpty || _passwordController.text.isEmpty || _usernameController.text.isEmpty) return;
     
     setState(() => _isLoading = true);
-    final success = await context.read<AuthProvider>().register(
+    final error = await context.read<AuthProvider>().register(
       _usernameController.text.trim(),
       _fullnameController.text.trim(),
       _emailController.text.trim(),
@@ -29,11 +29,11 @@ class _RegisterScreenState extends State<RegisterScreen> {
     );
     
     if (mounted) {
-      if (success) {
+      if (error == null) {
         Navigator.popUntil(context, (route) => route.isFirst);
       } else {
         ScaffoldMessenger.of(context).showSnackBar(
-          const SnackBar(content: Text("Registration failed. Email or Username might be taken.")),
+          SnackBar(content: Text(error)),
         );
         setState(() => _isLoading = false);
       }

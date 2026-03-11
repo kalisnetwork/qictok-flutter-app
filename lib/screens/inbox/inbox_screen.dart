@@ -10,29 +10,18 @@ class InboxScreen extends StatelessWidget {
       appBar: AppBar(
         title: const Text("Inbox", style: TextStyle(fontWeight: FontWeight.bold)),
       ),
-      body: ListView.builder(
-        itemCount: 10,
-        itemBuilder: (context, index) {
-          return ListTile(
-            leading: CircleAvatar(
-              backgroundColor: Colors.grey[900],
-              child: const Icon(Icons.person, color: Colors.white),
+      body: Center(
+        child: Column(
+          mainAxisAlignment: MainAxisAlignment.center,
+          children: [
+            Icon(Icons.notifications_off_outlined, size: 80, color: Colors.white.withOpacity(0.2)),
+            const SizedBox(height: 20),
+            Text(
+              "No new notifications",
+              style: TextStyle(color: Colors.white.withOpacity(0.5), fontSize: 18),
             ),
-            title: Text(
-              "User ${index + 1} liked your video",
-              style: const TextStyle(color: Colors.white, fontSize: 14),
-            ),
-            subtitle: Text(
-              "${index + 1} hour ago",
-              style: TextStyle(color: Colors.white.withOpacity(0.4), fontSize: 12),
-            ),
-            trailing: Container(
-              width: 40,
-              height: 40,
-              decoration: BoxDecoration(color: Colors.grey[900], borderRadius: BorderRadius.circular(4)),
-            ),
-          );
-        },
+          ],
+        ),
       ),
     );
   }
