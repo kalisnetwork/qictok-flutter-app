@@ -1,0 +1,82 @@
+import 'package:flutter/material.dart';
+import 'package:font_awesome_flutter/font_awesome_flutter.dart';
+import 'package:provider/provider.dart';
+import '../providers/auth_provider.dart';
+import 'reels/reels_screen.dart';
+import 'auth/login_screen.dart';
+import 'explore/explore_screen.dart';
+import 'upload/upload_screen.dart';
+import 'inbox/inbox_screen.dart';
+import 'profile/profile_screen.dart';
+
+class MainNavigation extends StatefulWidget {
+  const MainNavigation({super.key});
+
+  @override
+  State<MainNavigation> createState() => _MainNavigationState();
+}
+
+class _MainNavigationState extends State<MainNavigation> {
+  int _selectedIndex = 0;
+
+  final List<Widget> _screens = [
+    const ReelsScreen(),
+    const ExploreScreen(),
+    const UploadScreen(),
+    const InboxScreen(),
+    const ProfileScreen(),
+  ];
+
+  void _onItemTapped(int index) {
+    if (index == 2 || index == 4) {
+      final auth = context.read<AuthProvider>();
+      if (!auth.isAuthenticated) {
+        Navigator.of(context).push(
+          MaterialPageRoute(builder: (context) => const LoginScreen()),
+        );
+        return;
+      }
+    }
+    setState(() {
+      _selectedIndex = index;
+    });
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Scaffold(
+      body: IndexedStack(
+        index: _selectedIndex,
+        children: _screens,
+      ),
+      bottomNavigationBar: BottomNavigationBar(
+        currentIndex: _selectedIndex,
+        onTap: _onItemTapped,
+        items: const [
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.house, size: 20),
+            activeIcon: Icon(FontAwesomeIcons.houseUser, size: 20),
+            label: 'Home',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.magnifyingGlass, size: 20),
+            label: 'Discover',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.squarePlus, size: 28),
+            label: '',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.commentDots, size: 20),
+            label: 'Inbox',
+          ),
+          BottomNavigationBarItem(
+            icon: Icon(FontAwesomeIcons.user, size: 20),
+            activeIcon: Icon(FontAwesomeIcons.userLarge, size: 20),
+            label: 'Profile',
+          ),
+        ],
+      ),
+    );
+  }
+}
