@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:font_awesome_flutter/font_awesome_flutter.dart';
 import 'package:provider/provider.dart';
 import '../providers/auth_provider.dart';
+import '../providers/connectivity_provider.dart';
 import 'reels/reels_screen.dart';
 import 'auth/login_screen.dart';
 import 'explore/explore_screen.dart';
@@ -92,8 +93,8 @@ class _MainNavigationState extends State<MainNavigation> {
   }
 
   Widget _buildConnectionIndicator(ConnectivityProvider connectivity) {
-    Color color;
-    String text;
+    Color color = Colors.transparent;
+    String text = "";
     bool show = true;
 
     switch (connectivity.status) {
