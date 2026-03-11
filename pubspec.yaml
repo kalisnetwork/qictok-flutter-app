@@ -1,9 +1,10 @@
 name: qictok_mobile
 description: A premier TikTok clone for QicTok Pro.
 version: 1.0.0+1
+publish_to: 'none'
 
 environment:
-  sdk: '>=2.18.0 <4.0.0'
+  sdk: '>=3.10.7 <4.0.0'
 
 dependencies:
   flutter:
@@ -12,8 +13,6 @@ dependencies:
   dio: ^5.3.3
   provider: ^6.0.5
   video_player: ^2.8.1
-  # chewie is good for standard apps, but for TikTok style, we'll build custom overlay
-  # chewie: ^1.7.4 
   cached_network_image: ^3.3.0
   intl: ^0.18.1
   shared_preferences: ^2.2.2
@@ -23,17 +22,12 @@ dependencies:
   google_fonts: ^6.1.0
   glassmorphism: ^3.0.0
   font_awesome_flutter: ^10.6.0
-  # For smooth transitions
   animations: ^2.0.11
 
 dev_dependencies:
   flutter_test:
     sdk: flutter
-  flutter_lints: ^2.0.0
+  flutter_lints: ^6.0.0
 
 flutter:
   uses-material-design: true
-  
-  # Ensure we have these assets if we need local icons/logos
-  # assets:
-  #   - assets/images/logo.png
