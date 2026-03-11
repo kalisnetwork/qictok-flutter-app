@@ -26,14 +26,24 @@ class _ReelsScreenState extends State<ReelsScreen> {
       body: Consumer<ReelsProvider>(
         builder: (context, provider, child) {
           if (provider.isLoading && provider.posts.isEmpty) {
-            return const Center(
-              child: CircularProgressIndicator(color: Colors.white, strokeWidth: 2),
-            );
+            return const Center(child: CircularProgressIndicator(color: Colors.red));
           }
 
-          if (provider.posts.isEmpty) {
-            return const Center(
-              child: Text("No reels available.", style: TextStyle(color: Colors.white)),
+          if (!provider.isLoading && provider.posts.isEmpty) {
+            return Center(
+              child: Column(
+                mainAxisAlignment: MainAxisAlignment.center,
+                children: [
+                  Icon(Icons.cloud_off, size: 60, color: Colors.white.withOpacity(0.2)),
+                  const SizedBox(height: 16),
+                  const Text("No reels available.", style: TextStyle(color: Colors.white, fontSize: 16)),
+                  const SizedBox(height: 8),
+                  TextButton(
+                    onPressed: provider.refresh,
+                    child: const Text("Retry", style: TextStyle(color: Colors.redAccent)),
+                  ),
+                ],
+              ),
             );
           }
 

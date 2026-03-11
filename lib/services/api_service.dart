@@ -40,6 +40,16 @@ class ApiService {
     ));
   }
 
+  // --- Diagnostic Endpoints ---
+  Future<bool> checkConnection() async {
+    try {
+      final resp = await _dio.get('/posts', queryParameters: {'limit': 1});
+      return resp.data['status'] == true;
+    } catch (_) {
+      return false;
+    }
+  }
+
   // --- Auth Endpoints ---
   Future<Response> login(String email, String password) => 
       _dio.post('/auth/login', data: {'email': email, 'password': password});

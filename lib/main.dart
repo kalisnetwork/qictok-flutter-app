@@ -3,6 +3,7 @@ import 'package:provider/provider.dart';
 import 'theme/app_theme.dart';
 import 'providers/auth_provider.dart';
 import 'providers/reels_provider.dart';
+import 'providers/connectivity_provider.dart';
 import 'screens/main_navigation.dart';
 
 void main() async {
@@ -16,6 +17,7 @@ void main() async {
       providers: [
         ChangeNotifierProvider.value(value: authProvider),
         ChangeNotifierProvider.value(value: reelsProvider),
+        ChangeNotifierProvider(create: (_) => ConnectivityProvider()),
       ],
       child: const QicTokPro(),
     ),

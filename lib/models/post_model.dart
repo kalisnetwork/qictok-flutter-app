@@ -35,11 +35,21 @@ class PostModel {
 
   factory PostModel.fromJson(Map<String, dynamic> json) {
     final mediaId = json['media_id'];
+    String? mediaUrl = json['media_url'];
+    String? thumbnailUrl = json['thumbnail_url'];
+
+    // If the backend sends an absolute URL, use it. 
+    // If it's relative or missing, and we have a mediaId, construct the CDN link.
+    if (mediaId != null && (mediaUrl == null || !mediaUrl.startsWith('http'))) {
+      mediaUrl = 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.m3u8';
+      thumbnailUrl = 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.webp';
+    }
+
     return PostModel(
       id: json['id'] ?? '',
-      userId: json['user_id'],
-      mediaUrl: mediaId != null ? 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.m3u8' : json['media_url'],
-      thumbnailUrl: mediaId != null ? 'https://cdn.digitalleadpro.com/v1/m/$mediaId/index.webp' : json['thumbnail_url'],
+      userId: json['user_id']?.toString(),
+      mediaUrl: mediaUrl,
+      thumbnailUrl: thumbnailUrl,
       description: json['description'],
       tags: List<String>.from(json['tags'] ?? []),
       likesCount: json['likes'] ?? 0,

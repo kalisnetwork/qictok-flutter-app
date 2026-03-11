@@ -44,7 +44,18 @@ class _MainNavigationState extends State<MainNavigation> {
 
   @override
   Widget build(BuildContext context) {
+    final connectivity = context.watch<ConnectivityProvider>();
+
     return Scaffold(
+      appBar: AppBar(
+        toolbarHeight: 0,
+        backgroundColor: Colors.transparent,
+        elevation: 0,
+        bottom: PreferredSize(
+          preferredSize: const Size.fromHeight(2),
+          child: _buildConnectionIndicator(connectivity),
+        ),
+      ),
       body: IndexedStack(
         index: _selectedIndex,
         children: _screens,
@@ -76,6 +87,45 @@ class _MainNavigationState extends State<MainNavigation> {
             label: 'Profile',
           ),
         ],
+      ),
+    );
+  }
+
+  Widget _buildConnectionIndicator(ConnectivityProvider connectivity) {
+    Color color;
+    String text;
+    bool show = true;
+
+    switch (connectivity.status) {
+      case BackendStatus.checking:
+        color = Colors.orange;
+        text = "Checking connection...";
+        break;
+      case BackendStatus.online:
+        color = Colors.green;
+        text = "Connected to Backend";
+        show = false; // Hide if online
+        break;
+      case BackendStatus.offline:
+        color = Colors.red;
+        text = "Backend Offline / Host Lookup Failed";
+        break;
+      case BackendStatus.noInternet:
+        color = Colors.grey;
+        text = "No Internet Connection";
+        break;
+    }
+
+    if (!show) return const SizedBox.shrink();
+
+    return Container(
+      width: double.infinity,
+      color: color,
+      padding: const EdgeInsets.symmetric(vertical: 2),
+      child: Text(
+        text,
+        textAlign: TextAlign.center,
+        style: const TextStyle(color: Colors.white, fontSize: 10, fontWeight: FontWeight.bold),
       ),
     );
   }
